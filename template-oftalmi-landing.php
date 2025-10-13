@@ -1,32 +1,24 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landing Page Empresa</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome para iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <!-- Logo centrado -->
-     <div class="container-fluid bg-oftalmi">
+<?php
+/**
+ * Template Name: Landing Oftalmi
+ */
+get_header(); ?>
+
+<div class="container-fluid bg-oftalmi">
     <div class="container ">
-        <img src="img/landing.gif" alt="Logo de la empresa" class="img-fluid mar"  >
+        <img src="<?php echo get_template_directory_uri(); ?>img/landing.gif" alt="Logo de la empresa" class="img-fluid mar"  >
     </div>
     </div>
     <!-- Barra de color azul -->
     <div class="container-flud bg-titulo">
         <div class="container">
-            <img src="img/UCV.jpg" class=" mary" alt="congreso" >
+            <img src="<?php echo get_template_directory_uri(); ?>img/UCV.jpg" class=" mary" alt="congreso" >
         </div>
     </div>
     <!-- Contenedor principal con scroll -->
     <div class="content-wrapper">
         <!-- Imagen de fondo -->
-        <img src="img/PORTADA.jpg" alt="Imagen de la empresa" class="hero-image mi-imagen-css">
+        <img src="<?php echo get_template_directory_uri(); ?>img/PORTADA.jpg" alt="Imagen de la empresa" class="hero-image mi-imagen-css">
         
         <!-- Formulario -->
         <div class="form-container">
@@ -161,8 +153,4 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS (opcional, para funcionalidades de Bootstrap) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/script.js"></script>
-</body>
-</html>
+<?php get_footer(); ?>

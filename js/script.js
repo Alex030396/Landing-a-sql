@@ -381,26 +381,32 @@ document.addEventListener('DOMContentLoaded', function() {
             const jsonData = JSON.stringify(formData, null, 2);
             
             // Enviar datos al servidor
-            try {
-                const response = await fetch('guardar.php', {
+                    try {
+                const response = await fetch(oftalmi_ajax.url, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: jsonData
+                    body: new URLSearchParams({
+                        action: 'oftalmi_guardar',
+                        nonce: oftalmi_ajax.nonce,
+                        data: jsonData
+                    })
                 });
                 
                 const resultado = await response.json();
                 
-                if (resultado.exito) {
-                    successMessage.textContent = resultado.mensaje;
+                // CAMBIA ESTA PARTE: resultado.exito → resultado.success
+                // Y resultado.mensaje → resultado.data
+                if (resultado.success) {
+                    successMessage.textContent = resultado.data;
                     successMessage.style.display = 'block';
                     errorMessage.style.display = 'none';
                     
                     // Limpiar formulario después de 2 segundos
                     setTimeout(limpiarFormulario, 2000);
                 } else {
-                    errorMessage.textContent = resultado.mensaje;
+                    errorMessage.textContent = resultado.data;
                     errorMessage.style.display = 'block';
                     successMessage.style.display = 'none';
                 }
