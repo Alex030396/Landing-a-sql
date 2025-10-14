@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // DEFINIR EL NOMBRE DEL EVENTO ACTUAL (cambiar manualmente entre eventos)
-    const NOMBRE_EVENTO = "congreso-2"; // Cambiar a "congreso-2" para el próximo evento
+    const NOMBRE_EVENTO = "UCV-prueba"; // Cambiar a "congreso-2" para el próximo evento
 
     // Definir las subespecialidades
     const subespecialidades = {
