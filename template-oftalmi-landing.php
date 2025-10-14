@@ -6,19 +6,19 @@ get_header(); ?>
 
 <div class="container-fluid bg-oftalmi">
     <div class="container ">
-        <img src="<?php echo get_template_directory_uri(); ?>img/landing.gif" alt="Logo de la empresa" class="img-fluid mar"  >
+        <img src="<?php echo get_template_directory_uri(); ?>/img/landing.gif" alt="Logo de la empresa" class="img-fluid mar"  >
     </div>
     </div>
     <!-- Barra de color azul -->
     <div class="container-flud bg-titulo">
         <div class="container">
-            <img src="<?php echo get_template_directory_uri(); ?>img/UCV.jpg" class=" mary" alt="congreso" >
+            <img src="<?php echo get_template_directory_uri(); ?>/img/UCV.jpg" class=" mary" alt="congreso" >
         </div>
     </div>
     <!-- Contenedor principal con scroll -->
     <div class="content-wrapper">
         <!-- Imagen de fondo -->
-        <img src="<?php echo get_template_directory_uri(); ?>img/PORTADA.jpg" alt="Imagen de la empresa" class="hero-image mi-imagen-css">
+        <img src="<?php echo get_template_directory_uri(); ?>/img/PORTADA.jpg" alt="Imagen de la empresa" class="hero-image mi-imagen-css">
         
         <!-- Formulario -->
         <div class="form-container">
