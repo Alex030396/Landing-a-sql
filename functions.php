@@ -34,30 +34,22 @@ function oftalmi_guardar_datos() {
         wp_send_json_error('Error de seguridad: nonce inválido');
     }
     
-    // Log para debugging
-    error_log('🎯 AJAX recibido - oftalmi_guardar_datos ejecutándose');
-    
-    // Obtener los datos enviados
+    // Obtener y procesar los datos
     if (!isset($_POST['data'])) {
         wp_send_json_error('No se recibieron datos');
     }
     
-    $json_data = stripslashes($_POST['data']);
-    $data = json_decode($json_data, true);
+    $data = json_decode(stripslashes($_POST['data']), true);
 
     // Verificar si json_decode tuvo errores
     if (json_last_error() !== JSON_ERROR_NONE) {
-        error_log('❌ Error JSON: ' . json_last_error_msg());
         wp_send_json_error('Error en el formato JSON: ' . json_last_error_msg());
     }
 
-    error_log('📝 Datos recibidos: ' . print_r($data, true));
-
-    // Validar que todos los campos requeridos estén presentes
+    // Validar campos requeridos
     $required_fields = ['nombre', 'cedula', 'mpps', 'telefono', 'correo', 'especialidad', 'subespecialidad', 'nivelResidencia', 'direccion','evento'];
     foreach ($required_fields as $field) {
         if (!isset($data[$field]) || empty(trim($data[$field]))) {
-            error_log('❌ Campo faltante: ' . $field);
             wp_send_json_error('Faltan campos requeridos: ' . $field);
         }
     }
@@ -66,9 +58,8 @@ function oftalmi_guardar_datos() {
     global $wpdb;
     
     $tabla_doctores = $wpdb->prefix . 'doctores';
-    error_log('📊 Tabla destino: ' . $tabla_doctores);
     
-    // PRIMERO VERIFICAR SI YA EXISTE LA CÉDULA + EVENTO
+    // Verificar si ya existe la cédula + evento
     $existe = $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM $tabla_doctores WHERE cedula = %s AND evento = %s",
         $data['cedula'],
@@ -76,7 +67,6 @@ function oftalmi_guardar_datos() {
     ));
 
     if ($existe > 0) {
-        error_log('❌ Registro duplicado: ' . $data['cedula'] . ' para evento ' . $data['evento']);
         wp_send_json_error('Error: Ya existe un registro con la cédula ' . $data['cedula'] . ' para el evento ' . $data['evento']);
     }
 
@@ -91,8 +81,6 @@ function oftalmi_guardar_datos() {
     $nivelResidencia = sanitize_text_field(trim($data['nivelResidencia']));
     $direccion = sanitize_text_field(trim($data['direccion']));
     $evento = sanitize_text_field(trim($data['evento']));
-
-    error_log('💾 Intentando guardar: ' . $nombre . ' - ' . $cedula);
 
     // Insertar en la base de datos
     $resultado = $wpdb->insert(
@@ -114,11 +102,8 @@ function oftalmi_guardar_datos() {
     );
 
     if ($resultado !== false) {
-        $ultimo_id = $wpdb->insert_id;
-        error_log('✅ Registro guardado EXITOSAMENTE - ID: ' . $ultimo_id);
-        wp_send_json_success('¡Formulario enviado correctamente! Los datos han sido guardados en la base de datos. ID: ' . $ultimo_id);
+        wp_send_json_success('¡Formulario enviado correctamente! Los datos han sido guardados en la base de datos.');
     } else {
-        error_log('❌ Error al guardar: ' . $wpdb->last_error);
         wp_send_json_error('Error al guardar los datos: ' . $wpdb->last_error);
     }
 }
@@ -157,46 +142,37 @@ function oftalmi_crear_tabla() {
 }
 add_action('after_switch_theme', 'oftalmi_crear_tabla');
 
-// Agrega esta función para DEBUG - colócala antes del cierre ?>
+// Función para debug - verificar base de datos
 function oftalmi_debug_info() {
     global $wpdb;
     
-    // Información de la base de datos
     $tabla_doctores = $wpdb->prefix . 'doctores';
     
-    echo "
-    <div style='background: #f0f8ff; border: 2px solid #0073aa; padding: 15px; margin: 20px 0; border-radius: 5px;'>
-        <h3 style='color: #0073aa; margin-top: 0;'>🔍 INFORMACIÓN DE BASE DE DATOS</h3>
-        <p><strong>Base de datos:</strong> " . DB_NAME . "</p>
-        <p><strong>Tabla:</strong> {$tabla_doctores}</p>
-    ";
+    echo '<div style="background: #f8f9fa; border: 2px solid #0073aa; padding: 15px; margin: 20px 0; border-radius: 5px; font-size: 14px;">';
+    echo '<h4 style="color: #0073aa; margin-top: 0;">🔍 Estado de la Base de Datos</h4>';
+    echo '<p><strong>Base de datos:</strong> ' . DB_NAME . '</p>';
+    echo '<p><strong>Tabla:</strong> ' . $tabla_doctores . '</p>';
     
-    // Verificar si la tabla existe
     if($wpdb->get_var("SHOW TABLES LIKE '$tabla_doctores'") == $tabla_doctores) {
-        echo "<p style='color: green;'><strong>✅ Tabla EXISTE</strong></p>";
+        echo '<p style="color: green;"><strong>✅ Tabla EXISTE</strong></p>';
         
-        // Contar registros
         $total_registros = $wpdb->get_var("SELECT COUNT(*) FROM $tabla_doctores");
-        echo "<p><strong>Total de registros:</strong> {$total_registros}</p>";
+        echo '<p><strong>Total de registros:</strong> ' . $total_registros . '</p>';
         
-        // Mostrar últimos 3 registros
-        $ultimos_registros = $wpdb->get_results("SELECT * FROM $tabla_doctores ORDER BY id DESC LIMIT 3");
-        if($ultimos_registros) {
-            echo "<p><strong>Últimos registros:</strong></p>";
+        if($total_registros > 0) {
+            $ultimos_registros = $wpdb->get_results("SELECT * FROM $tabla_doctores ORDER BY id DESC LIMIT 3");
+            echo '<p><strong>Últimos registros:</strong></p>';
             foreach($ultimos_registros as $registro) {
-                echo "<div style='background: white; padding: 10px; margin: 5px 0; border-radius: 3px;'>";
-                echo "ID: {$registro->id} | Nombre: {$registro->nombre} | Cédula: {$registro->cedula}";
-                echo "</div>";
+                echo '<div style="background: white; padding: 10px; margin: 5px 0; border-radius: 3px;">';
+                echo 'ID: ' . $registro->id . ' | Nombre: ' . $registro->nombre . ' | Cédula: ' . $registro->cedula;
+                echo '</div>';
             }
-        } else {
-            echo "<p style='color: orange;'>⚠️ La tabla existe pero no hay registros</p>";
         }
     } else {
-        echo "<p style='color: red;'><strong>❌ La tabla NO EXISTE</strong></p>";
-        echo "<p>Para crear la tabla, ve a <strong>Apariencia → Temas</strong> y reactiva tu tema.</p>";
+        echo '<p style="color: red;"><strong>❌ La tabla NO EXISTE</strong></p>';
     }
     
-    echo "</div>";
+    echo '</div>';
 }
 add_action('wp_footer', 'oftalmi_debug_info');
 ?>

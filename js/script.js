@@ -381,7 +381,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const jsonData = JSON.stringify(formData, null, 2);
             
             // Enviar datos al servidor
-                    try {
+            try {
+                console.log('📤 Enviando datos...', formData);
+                
                 const response = await fetch(oftalmi_ajax.url, {
                     method: 'POST',
                     headers: {
@@ -393,6 +395,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         data: jsonData
                     })
                 });
+                
+                console.log('📥 Respuesta recibida:', response);
                 
                 const resultado = await response.json();
                 
