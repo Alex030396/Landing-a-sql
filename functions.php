@@ -29,14 +29,16 @@ add_action('wp_enqueue_scripts', 'oftalmi_localize_scripts');
 
 // 2. Función para guardar los datos (reemplaza guardar.php)
 function oftalmi_guardar_datos() {
-    // Verificar nonce para seguridad
-    if (!check_ajax_referer('oftalmi_nonce', 'nonce', false)) {
+    // Verificar nonce para seguridad - FORMA CORRECTA
+    if (!wp_verify_nonce($_POST['nonce'], 'oftalmi_nonce')) {
         wp_send_json_error('Error de seguridad: nonce inválido');
+        return;
     }
     
     // Obtener y procesar los datos
     if (!isset($_POST['data'])) {
         wp_send_json_error('No se recibieron datos');
+        return;
     }
     
     $data = json_decode(stripslashes($_POST['data']), true);
@@ -44,6 +46,7 @@ function oftalmi_guardar_datos() {
     // Verificar si json_decode tuvo errores
     if (json_last_error() !== JSON_ERROR_NONE) {
         wp_send_json_error('Error en el formato JSON: ' . json_last_error_msg());
+        return;
     }
 
     // Validar campos requeridos
@@ -51,6 +54,7 @@ function oftalmi_guardar_datos() {
     foreach ($required_fields as $field) {
         if (!isset($data[$field]) || empty(trim($data[$field]))) {
             wp_send_json_error('Faltan campos requeridos: ' . $field);
+            return;
         }
     }
 
@@ -59,15 +63,18 @@ function oftalmi_guardar_datos() {
     
     $tabla_doctores = $wpdb->prefix . 'doctores';
     
-    // Verificar si ya existe la cédula + evento
-    $existe = $wpdb->get_var($wpdb->prepare(
+    // VERIFICAR SI YA EXISTE LA CÉDULA + EVENTO - FORMA MÁS ROBUSTA
+    $consulta = $wpdb->prepare(
         "SELECT COUNT(*) FROM $tabla_doctores WHERE cedula = %s AND evento = %s",
-        $data['cedula'],
-        $data['evento']
-    ));
+        sanitize_text_field(trim($data['cedula'])),
+        sanitize_text_field(trim($data['evento']))
+    );
+    
+    $existe = $wpdb->get_var($consulta);
 
     if ($existe > 0) {
         wp_send_json_error('Error: Ya existe un registro con la cédula ' . $data['cedula'] . ' para el evento ' . $data['evento']);
+        return;
     }
 
     // Preparar datos para inserción
@@ -107,7 +114,6 @@ function oftalmi_guardar_datos() {
         wp_send_json_error('Error al guardar los datos: ' . $wpdb->last_error);
     }
 }
-
 // 3. Registrar los hooks para AJAX
 add_action('wp_ajax_oftalmi_guardar', 'oftalmi_guardar_datos');
 add_action('wp_ajax_nopriv_oftalmi_guardar', 'oftalmi_guardar_datos');
